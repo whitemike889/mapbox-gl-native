@@ -6,13 +6,17 @@
 static MGLMapView *mapView;
 
 @interface MGLMapView (MGLMapViewDirectionTests)
+#if TARGET_OS_IOS
 - (void)handleRotateGesture:(UIRotationGestureRecognizer *)rotate;
+#endif
 - (void)resetNorthAnimated:(BOOL)animated;
 @end
 
+#if TARGET_OS_IOS
 @interface UIRotationGestureRecognizer (MGLMapViewDirectionTests)
 @property (nonatomic, readwrite) UIGestureRecognizerState state;
 @end
+#endif
 
 @interface MGLMapViewDirectionTests : XCTestCase
 @end
@@ -51,6 +55,7 @@ static MGLMapView *mapView;
     XCTAssertEqual(mapView.direction, 0, @"Reset-to-north should set direction to 0°.");
 }
 
+#if TARGET_OS_IOS
 - (void)testRotateGesture {
     mapView.zoomLevel = 15;
 
@@ -68,6 +73,7 @@ static MGLMapView *mapView;
         XCTAssertEqualWithAccuracy(mapView.direction, wrappedRotation, 0.001, @"Map direction should match gesture rotation for input of %@°.", degrees);
     }
 }
+#endif
 
 - (void)testCompassRotation {
     mapView.zoomLevel = 15;

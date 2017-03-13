@@ -45,6 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, assign) CLLocationAccuracy desiredAccuracy;
 
+#if !TARGET_OS_TV
 /**
  Specifies the type of user activity associated with the location updates.
  
@@ -57,6 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
  @see `CLLocationManager.activityType`
  */
 @property (nonatomic, assign) CLActivityType activityType;
+#endif
 
 @required
 
@@ -77,10 +79,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, readonly) CLAuthorizationStatus authorizationStatus;
 
+#if !TARGET_OS_TV
 /**
  Requests permission to use the location services whenever the app is running.
  */
 - (void)requestAlwaysAuthorization;
+#endif
 
 /**
  Requests permission to use the location services while the app is in
@@ -90,16 +94,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Initiating Location Updates
 
+#if !TARGET_OS_TV
 /**
  Starts the generation of location updates that reports the user's current location.
  */
 - (void)startUpdatingLocation;
+#endif
 
 /**
  Stops the generation of location updates.
  */
 - (void)stopUpdatingLocation;
 
+#if !TARGET_OS_TV
 #pragma mark Initiating Heading Updates
 
 /**
@@ -121,6 +128,7 @@ NS_ASSUME_NONNULL_BEGIN
  Dissmisses immediately the heading calibration view from screen.
  */
 - (void)dismissHeadingCalibrationDisplay;
+#endif
 
 @end
 
@@ -147,6 +155,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Responding to Heading Updates
 
+#if !TARGET_OS_TV
 /**
  Notifies the delegate with the new heading data.
  
@@ -162,6 +171,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param manager The location manager reporting the calibration.
  */
 - (BOOL)locationManagerShouldDisplayHeadingCalibration:(id<MGLLocationManager>)manager;
+#endif
 
 #pragma mark Responding to Location Updates Errors
 
