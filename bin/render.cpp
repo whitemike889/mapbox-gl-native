@@ -1,3 +1,4 @@
+#include <mbgl/mbgl.hpp>
 #include <mbgl/map/map.hpp>
 #include <mbgl/map/map_options.hpp>
 #include <mbgl/util/image.hpp>
@@ -5,7 +6,6 @@
 #include <mbgl/util/default_styles.hpp>
 
 #include <mbgl/gl/headless_frontend.hpp>
-#include <mbgl/util/default_thread_pool.hpp>
 #include <mbgl/style/style.hpp>
 
 #include <args.hxx>
@@ -15,6 +15,9 @@
 #include <fstream>
 
 int main(int argc, char *argv[]) {
+    mbgl::Init();
+    atexit([] { mbgl::Cleanup(); });
+
     args::ArgumentParser argumentParser("Mapbox GL render tool");
     args::HelpFlag helpFlag(argumentParser, "help", "Display this help menu", {"help"});
 
@@ -76,9 +79,8 @@ int main(int argc, char *argv[]) {
 
     util::RunLoop loop;
 
-    ThreadPool threadPool(4);
-    HeadlessFrontend frontend({ width, height }, pixelRatio, threadPool);
-    Map map(frontend, MapObserver::nullObserver(), threadPool,
+    HeadlessFrontend frontend({ width, height }, pixelRatio);
+    Map map(frontend, MapObserver::nullObserver(),
             MapOptions().withMapMode(MapMode::Static).withSize(frontend.getSize()).withPixelRatio(pixelRatio),
             ResourceOptions().withCachePath(cache_file).withAssetPath(asset_root).withAccessToken(std::string(token)));
 

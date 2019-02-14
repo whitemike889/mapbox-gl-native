@@ -102,6 +102,9 @@ enum NetworkMode {
     Offline,
 };
 
+Q_MAPBOXGL_EXPORT void init();
+Q_MAPBOXGL_EXPORT void cleanup();
+
 Q_MAPBOXGL_EXPORT QVector<QPair<QString, QString> >& defaultStyles();
 
 Q_MAPBOXGL_EXPORT NetworkMode networkMode();

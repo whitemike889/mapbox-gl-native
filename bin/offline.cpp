@@ -1,8 +1,8 @@
+#include <mbgl/mbgl.hpp>
 #include <mbgl/util/default_styles.hpp>
 #include <mbgl/util/run_loop.hpp>
 #include <mbgl/util/string.hpp>
 #include <mbgl/util/geojson.hpp>
-
 #include <mbgl/storage/default_file_source.hpp>
 
 #include <args.hxx>
@@ -75,6 +75,9 @@ std::ostream& operator<<(std::ostream& os, mbgl::Response::Error::Reason r) {
 }
 
 int main(int argc, char *argv[]) {
+    mbgl::Init();
+    atexit([] { mbgl::Cleanup(); });
+
     args::ArgumentParser argumentParser("Mapbox GL offline tool");
     args::HelpFlag helpFlag(argumentParser, "help", "Display this help menu", {'h', "help"});
 

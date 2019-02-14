@@ -2,9 +2,14 @@
 
 #include <QApplication>
 
+#include <cstdlib>
+
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
+
+    QMapbox::init();
+    atexit([] { QMapbox::cleanup(); });
 
     QMapboxGLSettings settings;
     settings.setCacheDatabasePath("/tmp/mbgl-cache.db");

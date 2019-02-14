@@ -5,6 +5,7 @@
 #include <nan.h>
 #pragma GCC diagnostic pop
 
+#include <mbgl/mbgl.hpp>
 #include <mbgl/util/run_loop.hpp>
 
 #include "node_map.hpp"
@@ -13,6 +14,9 @@
 #include "node_expression.hpp"
 
 void RegisterModule(v8::Local<v8::Object> target, v8::Local<v8::Object> module) {
+    mbgl::Init();
+    node::AtExit([](void*) { mbgl::Cleanup(); });
+
     // This has the effect of:
     //   a) Ensuring that the static local variable is initialized before any thread contention.
     //   b) unreffing an async handle, which otherwise would keep the default loop running.

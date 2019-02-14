@@ -1,5 +1,6 @@
 #include "qmapbox.hpp"
 
+#include <mbgl/mbgl.hpp>
 #include <mbgl/storage/network_status.hpp>
 #include <mbgl/util/default_styles.hpp>
 #include <mbgl/util/geometry.hpp>
@@ -179,6 +180,28 @@ namespace QMapbox {
     QMapbox::CustomLayerRenderParameters provides the data passed on each render
     pass for a custom layer.
 */
+
+/*!
+    \fn void QMapbox::init()
+
+    Inits the library, must be called before using any
+    QMapboxGL object.
+*/
+void init()
+{
+    mbgl::Init();
+}
+
+/*!
+    \fn void QMapbox::cleanup()
+
+    Call this function to free all the allocated
+    resources by the QMapboxGL library/
+*/
+void cleanup()
+{
+    mbgl::Cleanup();
+}
 
 /*!
     \fn QMapbox::NetworkMode QMapbox::networkMode()

@@ -41,6 +41,8 @@ public:
     // Set/Get the current Scheduler for this thread
     static Scheduler* GetCurrent();
     static void SetCurrent(Scheduler*);
+
+    static Scheduler& GetBackground();
 };
 
 } // namespace mbgl

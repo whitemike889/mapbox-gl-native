@@ -40,11 +40,9 @@ static RendererObserver& nullObserver() {
 
 Renderer::Impl::Impl(gfx::RendererBackend& backend_,
                      float pixelRatio_,
-                     Scheduler& scheduler_,
                      const optional<std::string> programCacheDir_,
                      const optional<std::string> localFontFamily_)
     : backend(backend_)
-    , scheduler(scheduler_)
     , observer(&nullObserver())
     , pixelRatio(pixelRatio_)
     , programCacheDir(std::move(programCacheDir_))
@@ -117,7 +115,6 @@ void Renderer::Impl::render(const UpdateParameters& updateParameters) {
         updateParameters.pixelRatio,
         updateParameters.debugOptions,
         updateParameters.transformState,
-        scheduler,
         updateParameters.fileSource,
         updateParameters.mode,
         updateParameters.annotationManager,
