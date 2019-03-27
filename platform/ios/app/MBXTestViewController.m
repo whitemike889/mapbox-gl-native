@@ -76,8 +76,8 @@
 }
 
 - (void)updateCenter {
-    CLLocationCoordinate2D coord = CLLocationCoordinate2DMake(arc4random_uniform(180) - 90, arc4random_uniform(360) - 180);
-    self.mapView.centerCoordinate = coord;
+//    CLLocationCoordinate2D coord = CLLocationCoordinate2DMake(arc4random_uniform(180) - 90, arc4random_uniform(360) - 180);
+//    self.mapView.centerCoordinate = coord;
 }
 #pragma mark - MGLMapViewDelegate methods
 
