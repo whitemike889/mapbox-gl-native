@@ -159,6 +159,10 @@ int main(int argc, char *argv[]) {
         isPaused = !isPaused;
     });
 
+    view->setClearCacheCallback([fileSource] () {
+        fileSource->clearCache();
+    });
+
     // Load style
     if (style.empty()) {
         const char *url = getenv("MAPBOX_STYLE_URL");

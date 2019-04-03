@@ -46,6 +46,7 @@ public:
     void changePath(const std::string&);
 
     void cleanup();
+    void clearCache();
 
     optional<Response> get(const Resource&);
 

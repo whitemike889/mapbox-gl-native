@@ -174,6 +174,11 @@ public:
      */
     void put(const Resource&, const Response&);
 
+    /*
+     * Delete existing database and re-initialize.
+     */
+    void clearCache();
+
     // For testing only.
     void setOnlineStatus(bool);
 
