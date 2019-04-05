@@ -64,7 +64,7 @@ void OfflineDatabase::initialize() {
         return;
     default:
         // Downgrade: delete the database and try to reinitialize.
-        removeExisting();
+        cleanup(true);
         initialize();
     }
 }
@@ -76,19 +76,21 @@ void OfflineDatabase::changePath(const std::string& path_) {
     initialize();
 }
 
-void OfflineDatabase::cleanup() {
+void OfflineDatabase::cleanup(bool deleteDBFile) {
     // Deleting these SQLite objects may result in exceptions
     try {
         statements.clear();
         db.reset();
+        if (deleteDBFile)
+            util::deleteFile(path);
     } catch (const util::IOException& ex) {
         handleError(ex, "close database");
     } catch (const mapbox::sqlite::Exception& ex) {
-        handleError(ex, "close database");
+        handleError(ex, "close database", false);
     }
 }
 
-void OfflineDatabase::handleError(const mapbox::sqlite::Exception& ex, const char* action) {
+void OfflineDatabase::handleError(const mapbox::sqlite::Exception& ex, const char* action, bool resetDB) {
     if (ex.code == mapbox::sqlite::ResultCode::NotADB ||
         ex.code == mapbox::sqlite::ResultCode::Corrupt ||
         (ex.code == mapbox::sqlite::ResultCode::ReadOnly &&
@@ -96,10 +98,14 @@ void OfflineDatabase::handleError(const mapbox::sqlite::Exception& ex, const cha
         // The database was corruped, moved away, or deleted. We're going to start fresh with a
         // clean slate for the next operation.
         Log::Error(Event::Database, static_cast<int>(ex.code), "Can't %s: %s", action, ex.what());
-        try {
-            removeExisting();
-        } catch (const util::IOException& ioEx) {
-            handleError(ioEx, action);
+        if (resetDB) {
+            cleanup(true);
+        } else {
+            try {
+                util::deleteFile(path);
+            } catch (const util::IOException& ioEx) {
+                handleError(ioEx, action);
+            }
         }
     } else {
         // We treat the error as temporary, and pretend we have an inaccessible DB.
@@ -110,15 +116,6 @@ void OfflineDatabase::handleError(const mapbox::sqlite::Exception& ex, const cha
 void OfflineDatabase::handleError(const util::IOException& ex, const char* action) {
     // We failed to delete the database file.
     Log::Error(Event::Database, ex.code, "Can't %s: %s", action, ex.what());
-}
-
-void OfflineDatabase::removeExisting() {
-    Log::Warning(Event::Database, "Removing existing incompatible offline database");
-
-    statements.clear();
-    db.reset();
-
-    util::deleteFile(path);
 }
 
 void OfflineDatabase::removeOldCacheTable() {
@@ -1137,10 +1134,13 @@ bool OfflineDatabase::exceedsOfflineMapboxTileCountLimit(const Resource& resourc
 }
 
 void OfflineDatabase::clearCache() {
+    cleanup(true);
+
     try {
-        removeExisting();
         initialize();
     } catch (const util::IOException& ex) {
+        handleError(ex, "initialize");
+    } catch (const mapbox::sqlite::Exception& ex) {
         handleError(ex, "initialize");
     }
 }

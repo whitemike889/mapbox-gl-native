@@ -233,7 +233,6 @@ TEST(OfflineDatabase, TEST_REQUIRES_WRITE(Invalid)) {
     // Checking two possibilities for the error string because it apparently changes between SQLite versions.
     EXPECT_EQ(1u, log.count(error(ResultCode::NotADB, "Can't open database: file is encrypted or is not a database"), true) +
                   log.count(error(ResultCode::NotADB, "Can't open database: file is not a database"), true));
-    EXPECT_EQ(1u, log.count({ EventSeverity::Warning, Event::Database, -1, "Removing existing incompatible offline database" }));
 
     // Now try inserting and reading back to make sure we have a valid database.
     for (const auto& res : { fixture::resource, fixture::tile }) {
@@ -987,7 +986,6 @@ TEST(OfflineDatabase, DowngradeSchema) {
                                          "compressed", "accessed", "must_revalidate" }),
               databaseTableColumns(filename, "resources"));
 
-    EXPECT_EQ(1u, log.count({ EventSeverity::Warning, Event::Database, -1, "Removing existing incompatible offline database" }));
     EXPECT_EQ(0u, log.uncheckedCount());
 }
 
@@ -999,7 +997,6 @@ TEST(OfflineDatabase, CorruptDatabaseOnOpen) {
     // This database is corrupt in a way that will prevent opening the database.
     OfflineDatabase db(filename);
     EXPECT_EQ(1u, log.count(error(ResultCode::Corrupt, "Can't open database: database disk image is malformed"), true));
-    EXPECT_EQ(1u, log.count({ EventSeverity::Warning, Event::Database, -1, "Removing existing incompatible offline database" }));
     EXPECT_EQ(0u, log.uncheckedCount());
 
     // Now try inserting and reading back to make sure we have a valid database.
@@ -1029,7 +1026,6 @@ TEST(OfflineDatabase, CorruptDatabaseOnQuery) {
     // The first request fails because the database is corrupt and has to be recreated.
     EXPECT_EQ(nullopt, db.get(fixture::tile));
     EXPECT_EQ(1u, log.count(error(ResultCode::Corrupt, "Can't read resource: database disk image is malformed"), true));
-    EXPECT_EQ(1u, log.count({ EventSeverity::Warning, Event::Database, -1, "Removing existing incompatible offline database" }));
     EXPECT_EQ(0u, log.uncheckedCount());
 
     // Now try inserting and reading back to make sure we have a valid database.

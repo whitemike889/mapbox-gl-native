@@ -44,8 +44,6 @@ public:
     ~OfflineDatabase();
 
     void changePath(const std::string&);
-
-    void cleanup();
     void clearCache();
 
     optional<Response> get(const Resource&);
@@ -83,10 +81,10 @@ public:
 
 private:
     void initialize();
-    void handleError(const mapbox::sqlite::Exception&, const char* action);
+    void handleError(const mapbox::sqlite::Exception&, const char* action, bool resetDB = true);
     void handleError(const util::IOException&, const char* action);
 
-    void removeExisting();
+    void cleanup(bool deleteDBFile = false);
     void removeOldCacheTable();
     void createSchema();
     void migrateToVersion5();
