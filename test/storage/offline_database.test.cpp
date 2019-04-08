@@ -1356,3 +1356,15 @@ TEST(OfflineDatabse, ChangePath) {
     util::deleteFile(newPath);
 }
 
+TEST(OfflineDatabse, clearCache) {
+    FixtureLog log;
+    deleteDatabaseFiles();
+    util::copyFile(filename, "test/fixtures/offline_database/satellite_test.db");
+
+    OfflineDatabase db(filename);
+    db.clearCache();
+
+    auto regions = db.listRegions().value();
+    EXPECT_EQ(0u, regions.size());
+    EXPECT_EQ(0u, log.uncheckedCount());
+}
