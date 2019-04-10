@@ -3,6 +3,7 @@
 #include <mbgl/renderer/renderer.hpp>
 #include <mbgl/gfx/backend_scope.hpp>
 #include <mbgl/util/run_loop.hpp>
+#include <mbgl/util/thread_local.hpp>
 
 #include <string>
 
@@ -11,6 +12,9 @@
 #include "map_renderer_runnable.hpp"
 
 namespace mbgl {
+
+extern util::ThreadLocal<Scheduler> g_currentScheduler;
+
 namespace android {
 
 MapRenderer::MapRenderer(jni::JNIEnv& _env,
@@ -138,7 +142,7 @@ void MapRenderer::render(JNIEnv&) {
 
     // Ensure that the "current" scheduler on the render thread is
     // this scheduler.
-    Scheduler::SetCurrent(this);
+    g_currentScheduler.set(this);
 
     if (framebufferSizeChanged) {
         backend->updateViewPort();

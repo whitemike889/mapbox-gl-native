@@ -1744,7 +1744,7 @@ QMapboxGLPrivate::QMapboxGLPrivate(QMapboxGL *q, const QMapboxGLSettings &settin
                                          resourceOptions);
 
      if (settings.resourceTransform()) {
-         m_resourceTransform = std::make_unique<mbgl::Actor<mbgl::ResourceTransform>>(*mbgl::Scheduler::GetCurrent(),
+         m_resourceTransform = std::make_unique<mbgl::Actor<mbgl::ResourceTransform>>(mbgl::Scheduler::GetCurrent(),
              [callback = settings.resourceTransform()] (mbgl::Resource::Kind, const std::string &&url_) -> std::string {
                  return callback(std::move(url_));
              });

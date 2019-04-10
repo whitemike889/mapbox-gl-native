@@ -56,6 +56,9 @@ int looperCallbackDefault(int fd, int, void* data) {
 } // namespace
 
 namespace mbgl {
+
+extern util::ThreadLocal<Scheduler> g_currentScheduler;
+
 namespace util {
 
 // This is needed only for the RunLoop living on the main thread because of
@@ -195,16 +198,18 @@ Milliseconds RunLoop::Impl::processRunnables() {
 }
 
 RunLoop* RunLoop::Get() {
-    assert(static_cast<RunLoop*>(Scheduler::GetCurrent()));
-    return static_cast<RunLoop*>(Scheduler::GetCurrent());
+    assert(g_currentScheduler.get());
+    return static_cast<RunLoop*>(g_currentScheduler.get());
 }
 
 RunLoop::RunLoop(Type type) : impl(std::make_unique<Impl>(this, type)) {
-    Scheduler::SetCurrent(this);
+    assert(!g_currentScheduler.get());
+    g_currentScheduler.set(this);
 }
 
 RunLoop::~RunLoop() {
-    Scheduler::SetCurrent(nullptr);
+    assert(g_currentScheduler.get());
+    g_currentScheduler.set(nullptr);
 }
 
 LOOP_HANDLE RunLoop::getLoopHandle() {

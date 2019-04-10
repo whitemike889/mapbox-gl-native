@@ -21,7 +21,7 @@ CustomGeometryTile::CustomGeometryTile(const OverscaledTileID& overscaledTileID,
     necessity(TileNecessity::Optional),
     options(options_),
     loader(std::move(loader_)),
-    mailbox(std::make_shared<Mailbox>(*Scheduler::GetCurrent())),
+    mailbox(std::make_shared<Mailbox>(Scheduler::GetCurrent())),
     actorRef(*this, mailbox) {
 }
 

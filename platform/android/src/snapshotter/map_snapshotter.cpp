@@ -75,7 +75,7 @@ void MapSnapshotter::start(JNIEnv& env) {
     activateFilesource(env);
 
     snapshotCallback = std::make_unique<Actor<mbgl::MapSnapshotter::Callback>>(
-            *Scheduler::GetCurrent(),
+            Scheduler::GetCurrent(),
             [this](std::exception_ptr err, PremultipliedImage image, std::vector<std::string> attributions, mbgl::MapSnapshotter::PointForFn pointForFn, mbgl::MapSnapshotter::LatLngForFn latLngForFn) {
         MBGL_VERIFY_THREAD(tid);
         android::UniqueEnv _env = android::AttachEnv();

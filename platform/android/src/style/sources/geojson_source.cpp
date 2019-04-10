@@ -177,7 +177,7 @@ namespace android {
         awaitingUpdate = std::make_unique<Update>(
                 std::move(converterFn),
                 std::make_unique<Actor<Callback>>(
-                        *Scheduler::GetCurrent(),
+                        Scheduler::GetCurrent(),
                         [this](GeoJSON geoJSON) {
                             // conversion from Java features to core ones finished
                             android::UniqueEnv _env = android::AttachEnv();

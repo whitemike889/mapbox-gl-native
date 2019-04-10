@@ -1,7 +1,8 @@
 #include <mbgl/util/run_loop.hpp>
+
+#include <mbgl/actor/scheduler.hpp>
 #include <mbgl/util/async_task.hpp>
 #include <mbgl/util/thread_local.hpp>
-#include <mbgl/actor/scheduler.hpp>
 
 #include <uv.h>
 
@@ -16,6 +17,9 @@ void dummyCallback(uv_async_t*) {}
 } // namespace
 
 namespace mbgl {
+
+extern util::ThreadLocal<Scheduler> g_currentScheduler;
+
 namespace util {
 
 struct Watch {
@@ -51,8 +55,8 @@ struct Watch {
 };
 
 RunLoop* RunLoop::Get() {
-    assert(static_cast<RunLoop*>(Scheduler::GetCurrent()));
-    return static_cast<RunLoop*>(Scheduler::GetCurrent());
+    assert(g_currentScheduler.get());
+    return static_cast<RunLoop*>(g_currentScheduler.get());
 }
 
 class RunLoop::Impl {
@@ -97,12 +101,15 @@ RunLoop::RunLoop(Type type) : impl(std::make_unique<Impl>()) {
 
     impl->type = type;
 
-    Scheduler::SetCurrent(this);
+    assert(!g_currentScheduler.get());
+    g_currentScheduler.set(this);
+
     impl->async = std::make_unique<AsyncTask>(std::bind(&RunLoop::process, this));
 }
 
 RunLoop::~RunLoop() {
-    Scheduler::SetCurrent(nullptr);
+    assert(g_currentScheduler.get());
+    g_currentScheduler.set(nullptr);
 
     // Close the dummy handle that we have
     // just to keep the main loop alive.

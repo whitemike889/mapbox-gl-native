@@ -58,7 +58,7 @@ void FileSource::setAPIBaseUrl(jni::JNIEnv& env, const jni::String& url) {
 void FileSource::setResourceTransform(jni::JNIEnv& env, const jni::Object<FileSource::ResourceTransformCallback>& transformCallback) {
     if (transformCallback) {
         auto global = jni::NewGlobal<jni::EnvAttachingDeleter>(env, transformCallback);
-        resourceTransform = std::make_unique<Actor<ResourceTransform>>(*Scheduler::GetCurrent(),
+        resourceTransform = std::make_unique<Actor<ResourceTransform>>(Scheduler::GetCurrent(),
             // Capture the ResourceTransformCallback object as a managed global into
             // the lambda. It is released automatically when we're setting a new ResourceTransform in
             // a subsequent call.

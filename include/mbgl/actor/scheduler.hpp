@@ -25,7 +25,7 @@ class Mailbox;
       for an object that lives on the main thread and is not itself wrapped an
       `Actor`. The underlying implementation of this Scheduler should usually be
       a `RunLoop`
-        auto mailbox = std::make_shared<Mailbox>(*Scheduler::Get());
+        auto mailbox = std::make_shared<Mailbox>(Scheduler::GetCurrent());
         Actor<Worker> worker(threadPool, ActorRef<Foo>(*this, mailbox));
 */
 class Scheduler {
@@ -39,9 +39,9 @@ public:
     virtual void schedule(std::weak_ptr<Mailbox>) = 0;
 
     // Set/Get the current Scheduler for this thread
-    static Scheduler* GetCurrent();
-    static void SetCurrent(Scheduler*);
+    static Scheduler& GetCurrent();
 
+    // Get the scheduler for asynchronous tasks
     static Scheduler& GetBackground();
 };
 

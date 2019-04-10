@@ -44,7 +44,7 @@ GeometryTile::GeometryTile(const OverscaledTileID& id_,
                            const TileParameters& parameters)
     : Tile(Kind::Geometry, id_),
       sourceID(std::move(sourceID_)),
-      mailbox(std::make_shared<Mailbox>(*Scheduler::GetCurrent())),
+      mailbox(std::make_shared<Mailbox>(Scheduler::GetCurrent())),
       worker(Scheduler::GetBackground(),
              ActorRef<GeometryTile>(*this, mailbox),
              id_,

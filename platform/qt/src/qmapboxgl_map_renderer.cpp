@@ -2,15 +2,22 @@
 #include "qmapboxgl_scheduler.hpp"
 
 #include <mbgl/gfx/backend_scope.hpp>
+#include <mbgl/util/thread_local.hpp>
 
 #include <QThreadStorage>
 #include <QtGlobal>
+
+namespace mbgl {
+
+extern util::ThreadLocal<Scheduler> g_currentScheduler;
+
+}
 
 static bool needsToForceScheduler() {
     static QThreadStorage<bool> force;
 
     if (!force.hasLocalData()) {
-        force.setLocalData(mbgl::Scheduler::GetCurrent() == nullptr);
+        force.setLocalData(mbgl::g_currentScheduler.get() == nullptr);
     }
 
     return force.localData();
@@ -26,9 +33,9 @@ static auto *getScheduler() {
     return scheduler.localData().get();
 };
 
-QMapboxGLMapRenderer::QMapboxGLMapRenderer(qreal pixelRatio, mbgl::ThreadPool &tp, QMapboxGLSettings::GLContextMode mode, const QString &localFontFamily)
+QMapboxGLMapRenderer::QMapboxGLMapRenderer(qreal pixelRatio, QMapboxGLSettings::GLContextMode mode, const QString &localFontFamily)
     : m_backend(static_cast<mbgl::gfx::ContextMode>(mode)),
-      m_renderer(std::make_unique<mbgl::Renderer>(m_backend, pixelRatio, tp, mbgl::optional<std::string> {},
+      m_renderer(std::make_unique<mbgl::Renderer>(m_backend, pixelRatio, mbgl::optional<std::string> {},
                  localFontFamily.isEmpty() ? mbgl::nullopt : mbgl::optional<std::string> { localFontFamily.toStdString() }))
     , m_forceScheduler(needsToForceScheduler())
 {
@@ -39,8 +46,8 @@ QMapboxGLMapRenderer::QMapboxGLMapRenderer(qreal pixelRatio, mbgl::ThreadPool &t
     if (m_forceScheduler) {
         auto scheduler = getScheduler();
 
-        if (mbgl::Scheduler::GetCurrent() == nullptr) {
-            mbgl::Scheduler::SetCurrent(scheduler);
+        if (mbgl::g_currentScheduler.get() == nullptr) {
+            mbgl::g_currentScheduler.set(scheduler);
         }
 
         connect(scheduler, SIGNAL(needsProcessing()), this, SIGNAL(needsRendering()));

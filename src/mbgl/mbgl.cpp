@@ -8,7 +8,7 @@
 
 namespace mbgl {
 
-std::unique_ptr<ThreadPool> g_backgroundScheduler;
+extern std::unique_ptr<ThreadPool> g_backgroundScheduler;
 
 void Init() {
     assert(!g_backgroundScheduler);

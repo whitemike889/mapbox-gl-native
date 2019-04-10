@@ -21,7 +21,7 @@ static SpriteLoaderObserver nullObserver;
 
 struct SpriteLoader::Loader {
     Loader(SpriteLoader& imageManager)
-        : mailbox(std::make_shared<Mailbox>(*Scheduler::GetCurrent())),
+        : mailbox(std::make_shared<Mailbox>(Scheduler::GetCurrent())),
           worker(Scheduler::GetBackground(), ActorRef<SpriteLoader>(imageManager, mailbox)) {
     }
 

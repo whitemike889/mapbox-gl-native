@@ -17,7 +17,7 @@ RasterDEMTile::RasterDEMTile(const OverscaledTileID& id_,
                        const Tileset& tileset)
     : Tile(Kind::RasterDEM, id_),
       loader(*this, id_, parameters, tileset),
-      mailbox(std::make_shared<Mailbox>(*Scheduler::GetCurrent())),
+      mailbox(std::make_shared<Mailbox>(Scheduler::GetCurrent())),
       worker(Scheduler::GetBackground(),
              ActorRef<RasterDEMTile>(*this, mailbox)) {
 
