@@ -41,4 +41,104 @@ static MGLMapView *mapView;
     XCTAssertTrue(CGRectIntersectsRect(spanningBoundsRect, rightAntimeridianBoundsRect), @"Something");
 }
 
+- (void)testUserTrackingModeCompletion {
+    __block BOOL completed = NO;
+    [mapView setUserTrackingMode:MGLUserTrackingModeNone animated:NO completionHandler:^{
+        completed = YES;
+    }];
+    XCTAssertTrue(completed, @"Completion block should get called synchronously when the mode is unchanged.");
+    
+    completed = NO;
+    [mapView setUserTrackingMode:MGLUserTrackingModeNone animated:YES completionHandler:^{
+        completed = YES;
+    }];
+    XCTAssertTrue(completed, @"Completion block should get called synchronously when the mode is unchanged.");
+    
+    completed = NO;
+    [mapView setUserTrackingMode:MGLUserTrackingModeFollow animated:NO completionHandler:^{
+        completed = YES;
+    }];
+    XCTAssertTrue(completed, @"Completion block should get called synchronously when there’s no location.");
+    
+    completed = NO;
+    [mapView setUserTrackingMode:MGLUserTrackingModeFollowWithHeading animated:YES completionHandler:^{
+        completed = YES;
+    }];
+    XCTAssertTrue(completed, @"Completion block should get called synchronously when there’s no location.");
+}
+
+- (void)testTargetCoordinateCompletion {
+    __block BOOL completed = NO;
+    [mapView setTargetCoordinate:kCLLocationCoordinate2DInvalid animated:NO completionHandler:^{
+        completed = YES;
+    }];
+    XCTAssertTrue(completed, @"Completion block should get called synchronously when the target coordinate is unchanged.");
+    
+    completed = NO;
+    [mapView setTargetCoordinate:kCLLocationCoordinate2DInvalid animated:YES completionHandler:^{
+        completed = YES;
+    }];
+    XCTAssertTrue(completed, @"Completion block should get called synchronously when the target coordinate is unchanged.");
+    
+    completed = NO;
+    [mapView setUserTrackingMode:MGLUserTrackingModeFollow animated:NO completionHandler:nil];
+    [mapView setTargetCoordinate:CLLocationCoordinate2DMake(39.128106, -84.516293) animated:YES completionHandler:^{
+        completed = YES;
+    }];
+    XCTAssertTrue(completed, @"Completion block should get called synchronously when not tracking user course.");
+    
+    completed = NO;
+    [mapView setUserTrackingMode:MGLUserTrackingModeFollowWithCourse animated:NO completionHandler:nil];
+    [mapView setTargetCoordinate:CLLocationCoordinate2DMake(39.224407, -84.394957) animated:YES completionHandler:^{
+        completed = YES;
+    }];
+    XCTAssertTrue(completed, @"Completion block should get called synchronously when there’s no location.");
+}
+
+- (void)testVisibleCoordinatesCompletion {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Completion block should get called when not animated"];
+    MGLCoordinateBounds unitBounds = MGLCoordinateBoundsMake(CLLocationCoordinate2DMake(0, 0), CLLocationCoordinate2DMake(1, 1));
+    [mapView setVisibleCoordinateBounds:unitBounds edgePadding:UIEdgeInsetsZero animated:NO completionHandler:^{
+        [expectation fulfill];
+    }];
+    [self waitForExpectations:@[expectation] timeout:1];
+
+    expectation = [self expectationWithDescription:@"Completion block should get called when animated"];
+    CLLocationCoordinate2D antiunitCoordinates[] = {
+        CLLocationCoordinate2DMake(0, 0),
+        CLLocationCoordinate2DMake(-1, -1),
+    };
+    [mapView setVisibleCoordinates:antiunitCoordinates
+                             count:sizeof(antiunitCoordinates) / sizeof(antiunitCoordinates[0])
+                       edgePadding:UIEdgeInsetsZero
+                         direction:0
+                          duration:0
+           animationTimingFunction:nil
+                 completionHandler:^{
+        [expectation fulfill];
+    }];
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
+- (void)testShowAnnotationsCompletion {
+    __block BOOL completed = NO;
+    [mapView showAnnotations:@[] edgePadding:UIEdgeInsetsZero animated:NO completionHandler:^{
+        completed = YES;
+    }];
+    XCTAssertTrue(completed, @"Completion block should get called synchronously when there are no annotations to show.");
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Completion block should get called when not animated"];
+    MGLPointAnnotation *annotation = [[MGLPointAnnotation alloc] init];
+    [mapView showAnnotations:@[annotation] edgePadding:UIEdgeInsetsZero animated:NO completionHandler:^{
+        [expectation fulfill];
+    }];
+    [self waitForExpectations:@[expectation] timeout:1];
+    
+    expectation = [self expectationWithDescription:@"Completion block should get called when animated."];
+    [mapView showAnnotations:@[annotation] edgePadding:UIEdgeInsetsZero animated:YES completionHandler:^{
+        [expectation fulfill];
+    }];
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
 @end

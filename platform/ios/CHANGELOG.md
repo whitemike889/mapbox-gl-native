@@ -4,7 +4,13 @@ Mapbox welcomes participation and contributions from everyone. Please read [CONT
 
 ## 4.11.0
 
-* No public-facing changes in v4.11.0-alpha.1.
+* Added variants of several animated `MGLMapView` methods that accept completion handlers ([#14381](https://github.com/mapbox/mapbox-gl-native/pull/14381)):
+  * `-[MGLMapView setVisibleCoordinateBounds:edgePadding:animated:completionHandler:]`
+  * `-[MGLMapView setContentInset:animated:completionHandler:]`
+  * `-[MGLMapView setUserTrackingMode:animated:completionHandler:]`
+  * `-[MGLMapView setTargetCoordinate:animated:completionHandler:]`
+  * `-[MGLMapView showAnnotations:edgePadding:animated:completionHandler:]`
+  * `-[MGLMapView selectAnnotation:animated:completionHandler:]`
 
 ## 4.10.0
 
