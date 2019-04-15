@@ -134,16 +134,8 @@ ViewportMode TransformState::getViewportMode() const {
 #pragma mark - Camera options
 
 CameraOptions TransformState::getCameraOptions(const EdgeInsets& padding) const {
-    LatLng center;
-    if (padding.isFlush()) {
-        center = getLatLng();
-    } else {
-        ScreenCoordinate point = padding.getCenter(size.width, size.height);
-        point.y = size.height - point.y;
-        center = screenCoordinateToLatLng(point).wrapped();
-    }
     return CameraOptions()
-        .withCenter(center)
+        .withCenter(getLatLng())
         .withPadding(padding)
         .withZoom(getZoom())
         .withBearing(-bearing * util::RAD2DEG)
@@ -178,10 +170,6 @@ double TransformState::getZoom() const {
 
 uint8_t TransformState::getIntegerZoom() const {
     return getZoom();
-}
-
-double TransformState::getZoomFraction() const {
-    return getZoom() - getIntegerZoom();
 }
 
 #pragma mark - Bounds
@@ -222,6 +210,10 @@ double TransformState::getMaxZoom() const {
     return scaleZoom(max_scale);
 }
 
+const EdgeInsets& TransformState::getEdgeInsets() const {
+    return edgeInsets;
+}
+
 #pragma mark - Rotation
 
 float TransformState::getBearing() const {
@@ -239,7 +231,6 @@ float TransformState::getCameraToCenterDistance() const {
 float TransformState::getPitch() const {
     return pitch;
 }
-
 
 #pragma mark - State
 

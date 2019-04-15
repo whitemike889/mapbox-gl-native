@@ -52,7 +52,6 @@ public:
     // Zoom
     double getZoom() const;
     uint8_t getIntegerZoom() const;
-    double getZoomFraction() const;
 
     // Bounds
     void setLatLngBounds(LatLngBounds);
@@ -61,6 +60,7 @@ public:
     double getMinZoom() const;
     void setMaxZoom(double);
     double getMaxZoom() const;
+    const EdgeInsets& getEdgeInsets() const;
 
     // Rotation
     float getBearing() const;
@@ -136,6 +136,7 @@ private:
     double xSkew = 0.0;
     double ySkew = 1.0;
     bool axonometric = false;
+    EdgeInsets edgeInsets;
 
     // cache values for spherical mercator math
     double Bc = Projection::worldSize(scale) / util::DEGREES_MAX;

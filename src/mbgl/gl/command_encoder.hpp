@@ -19,6 +19,8 @@ public:
 
     std::unique_ptr<gfx::RenderPass> createRenderPass(const char* name, const gfx::RenderPassDescriptor&) override;
 
+    void setViewport(double originX, double originY, double width, double height) override;
+
 private:
     void pushDebugGroup(const char* name) override;
     void popDebugGroup() override;

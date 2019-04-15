@@ -19,6 +19,11 @@ CommandEncoder::createRenderPass(const char* name, const gfx::RenderPassDescript
     return std::make_unique<gl::RenderPass>(*this, name, descriptor);
 }
 
+void CommandEncoder::setViewport(double originX, double originY, double width, double height) {
+    context.viewport = { static_cast<int32_t>(originX), static_cast<int32_t>(originY),
+                         { static_cast<uint32_t>(width), static_cast<uint32_t>(height) } };
+}
+
 void CommandEncoder::pushDebugGroup(const char* name) {
     (void)name;
 #ifndef NDEBUG

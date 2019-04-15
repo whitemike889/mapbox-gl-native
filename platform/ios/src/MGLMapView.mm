@@ -1077,20 +1077,15 @@ public:
         return;
     }
 
-    // After adjusting the content inset, move the center coordinate from the
-    // old frame of reference to the new one represented by the newly set
-    // content inset.
-    CLLocationCoordinate2D oldCenter = self.centerCoordinate;
-
-    _contentInset = contentInset;
-
     if (self.userTrackingMode == MGLUserTrackingModeNone)
     {
         // Don’t call -setCenterCoordinate:, which resets the user tracking mode.
-        [self _setCenterCoordinate:oldCenter animated:animated];
+        [self _setCenterCoordinate:self.centerCoordinate edgePadding:contentInset zoomLevel:self.zoomLevel direction:self.direction duration:animated ? MGLAnimationDuration : 0 animationTimingFunction:nil completionHandler:NULL];
+        _contentInset = contentInset;
     }
     else
     {
+        _contentInset = contentInset;
         [self didUpdateLocationWithUserTrackingAnimated:animated];
     }
 
@@ -3290,12 +3285,9 @@ public:
     [self _setCenterCoordinate:centerCoordinate edgePadding:self.contentInset zoomLevel:zoomLevel direction:direction duration:animated ? MGLAnimationDuration : 0 animationTimingFunction:nil completionHandler:completion];
 }
 
-- (void)_setCenterCoordinate:(CLLocationCoordinate2D)centerCoordinate animated:(BOOL)animated {
-    [self _setCenterCoordinate:centerCoordinate edgePadding:self.contentInset zoomLevel:self.zoomLevel direction:self.direction duration:animated ? MGLAnimationDuration : 0 animationTimingFunction:nil completionHandler:NULL];
-}
-
 - (void)_setCenterCoordinate:(CLLocationCoordinate2D)centerCoordinate edgePadding:(UIEdgeInsets)insets zoomLevel:(double)zoomLevel direction:(CLLocationDirection)direction duration:(NSTimeInterval)duration animationTimingFunction:(nullable CAMediaTimingFunction *)function completionHandler:(nullable void (^)(void))completion
 {
+    BOOL contentInsetsAreEqual = UIEdgeInsetsEqualToEdgeInsets(_contentInset, insets);
     if (!_mbglMap)
     {
         if (completion)
@@ -3333,7 +3325,7 @@ public:
     }
     
     MGLMapCamera *camera = [self cameraForCameraOptions:cameraOptions];
-    if ([self.camera isEqualToMapCamera:camera])
+    if ([self.camera isEqualToMapCamera:camera] && contentInsetsAreEqual)
     {
         if (completion)
         {

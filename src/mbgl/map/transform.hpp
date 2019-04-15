@@ -48,7 +48,7 @@ public:
             top to bottom and from left to right. */
     void moveBy(const ScreenCoordinate& offset, const AnimationOptions& = {});
     LatLng getLatLng(const EdgeInsets& = {}, LatLng::WrapMode = LatLng::Wrapped) const;
-    ScreenCoordinate getScreenCoordinate(const EdgeInsets& = {}) const;
+    ScreenCoordinate getScreenCenterCoordinate() const;
 
     // Bounds
 

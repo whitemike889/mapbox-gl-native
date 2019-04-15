@@ -28,6 +28,8 @@ public:
     }
 
     virtual std::unique_ptr<RenderPass> createRenderPass(const char* name, const RenderPassDescriptor&) = 0;
+
+    virtual void setViewport(double originX, double originY, double width, double height) = 0;
 };
 
 } // namespace gfx

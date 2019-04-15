@@ -105,6 +105,7 @@ typedef NS_ENUM(NSInteger, MBXSettingsMiscellaneousRows) {
     MBXSettingsMiscellaneousShowSnapshots,
     MBXSettingsMiscellaneousMissingIcon,
     MBXSettingsMiscellaneousShouldLimitCameraChanges,
+    MBXSettingsMiscellaneousSetContentInsets,
     MBXSettingsMiscellaneousShowCustomLocationManager,
     MBXSettingsMiscellaneousOrnamentsPlacement,
     MBXSettingsMiscellaneousPrintLogFile,
@@ -219,6 +220,8 @@ CLLocationCoordinate2D randomWorldCoordinate() {
 @implementation MBXViewController
 {
     BOOL _isTouringWorld;
+    BOOL _contentInsetsEnabled;
+    UIEdgeInsets _originalContentInsets;
 }
 
 #pragma mark - Setup & Teardown
@@ -502,6 +505,7 @@ CLLocationCoordinate2D randomWorldCoordinate() {
                 @"Show Snapshots",
                 @"Missing Icon",
                 [NSString stringWithFormat:@"%@ Camera Changes", (_shouldLimitCameraChanges ? @"Unlimit" : @"Limit")],
+                [NSString stringWithFormat:@"Turn %@ Content Insets", (_contentInsetsEnabled ? @"Off" : @"On")],
                 @"View Route Simulation",
                 @"Ornaments Placement",
             ]];
@@ -763,6 +767,22 @@ CLLocationCoordinate2D randomWorldCoordinate() {
                     self.shouldLimitCameraChanges = !self.shouldLimitCameraChanges;
                     if (self.shouldLimitCameraChanges) {
                         [self.mapView setCenterCoordinate:CLLocationCoordinate2DMake(39.748947, -104.995882) zoomLevel:10 direction:0 animated:NO];
+                    }
+                    break;
+                }
+                case MBXSettingsMiscellaneousSetContentInsets:
+                {
+                    _contentInsetsEnabled = !_contentInsetsEnabled;
+                    if (_contentInsetsEnabled) {
+                        _originalContentInsets = [self.mapView contentInset];
+                        MGLMapCamera *camera = [MGLMapCamera cameraLookingAtCenterCoordinate:CLLocationCoordinate2DMake(39.7269321, -104.9986) altitude:40 pitch:60 heading:0];
+                        __weak typeof(self) weakSelf = self;
+                        [self.mapView setCamera:camera withDuration:0 animationTimingFunction:nil completionHandler:^{
+                            [weakSelf.mapView setContentInset:UIEdgeInsetsMake(self.mapView.bounds.size.height * 0.3,
+                                                                               self.mapView.bounds.size.width * 0.3, 0, 0) animated:TRUE];
+                        }];
+                    } else {
+                        [self.mapView setContentInset:_originalContentInsets animated:TRUE];
                     }
                     break;
                 }
@@ -2030,6 +2050,18 @@ CLLocationCoordinate2D randomWorldCoordinate() {
     }
     self.mapView.userTrackingMode = nextMode;
     [sender setAccessibilityValue:nextAccessibilityValue];
+}
+
+#pragma mark - UIViewDelegate
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
+{
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    if (_contentInsetsEnabled)
+    {
+        _contentInsetsEnabled = NO;
+        [self.mapView setContentInset:_originalContentInsets];
+    }
 }
 
 #pragma mark - MGLMapViewDelegate

@@ -425,6 +425,17 @@ void Renderer::Impl::render(const UpdateParameters& updateParameters) {
             color = backgroundColor;
         }
         parameters.renderPass = parameters.encoder->createRenderPass("main buffer", { parameters.backend.getDefaultRenderable(), color, 1, 0 });
+
+        auto& edgeInsets = parameters.state.getEdgeInsets();
+        if (!edgeInsets.isFlush()) {
+            ScreenCoordinate offset = { edgeInsets.left() - edgeInsets.right(), edgeInsets.top() - edgeInsets.bottom() };
+            Size viewSize = parameters.state.getSize();
+            double viewportLeft = std::min(0., offset.x) * pixelRatio;
+            double viewportTop = std::min(0., offset.y) * pixelRatio;
+            double viewportWidth = (viewSize.width + std::max(0., offset.x)) * pixelRatio - viewportLeft;
+            double viewportHeight = (viewSize.height + std::max(0., offset.y)) * pixelRatio - viewportTop;
+            parameters.encoder->setViewport(viewportLeft, viewportTop, viewportWidth, viewportHeight);
+        }
     }
 
     // - CLIPPING MASKS ----------------------------------------------------------------------------

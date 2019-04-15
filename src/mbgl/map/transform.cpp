@@ -110,9 +110,6 @@ void Transform::easeTo(const CameraOptions& camera, const AnimationOptions& anim
     const Point<double> startPoint = Projection::project(startLatLng, state.scale);
     const Point<double> endPoint = Projection::project(latLng, state.scale);
 
-    ScreenCoordinate center = getScreenCoordinate(padding);
-    center.y = state.size.height - center.y;
-
     // Constrain camera options.
     zoom = util::clamp(zoom, state.getMinZoom(), state.getMaxZoom());
     const double scale = state.zoomScale(zoom);
@@ -143,10 +140,7 @@ void Transform::easeTo(const CameraOptions& camera, const AnimationOptions& anim
         if (pitch != startPitch) {
             state.pitch = util::interpolate(startPitch, pitch, t);
         }
-
-        if (!padding.isFlush()) {
-            state.moveLatLng(frameLatLng, center);
-        }
+        state.edgeInsets = padding;
     }, duration);
 }
 
@@ -176,8 +170,8 @@ void Transform::flyTo(const CameraOptions &camera, const AnimationOptions &anima
     const Point<double> startPoint = Projection::project(startLatLng, state.scale);
     const Point<double> endPoint = Projection::project(latLng, state.scale);
 
-    ScreenCoordinate center = getScreenCoordinate(padding);
-    center.y = state.size.height - center.y;
+    // ScreenCoordinate center = getScreenCoordinate(padding);
+    // center.y = state.size.height - center.y;
 
     // Constrain camera options.
     zoom = util::clamp(zoom, state.getMinZoom(), state.getMaxZoom());
@@ -304,10 +298,7 @@ void Transform::flyTo(const CameraOptions &camera, const AnimationOptions &anima
         if (pitch != startPitch) {
             state.pitch = util::interpolate(startPitch, pitch, k);
         }
-
-        if (!padding.isFlush()) {
-            state.moveLatLng(frameLatLng, center);
-        }
+        state.edgeInsets = padding;
     }, duration);
 }
 
@@ -315,7 +306,7 @@ void Transform::flyTo(const CameraOptions &camera, const AnimationOptions &anima
 
 void Transform::moveBy(const ScreenCoordinate& offset, const AnimationOptions& animation) {
     ScreenCoordinate centerOffset = { offset.x, -offset.y, };
-    ScreenCoordinate centerPoint = getScreenCoordinate() - centerOffset;
+    ScreenCoordinate centerPoint = getScreenCenterCoordinate() - centerOffset;
     easeTo(CameraOptions().withCenter(state.screenCoordinateToLatLng(centerPoint)), animation);
 }
 
@@ -327,14 +318,9 @@ LatLng Transform::getLatLng(const EdgeInsets& padding, LatLng::WrapMode wrap) co
     }
 }
 
-ScreenCoordinate Transform::getScreenCoordinate(const EdgeInsets& padding) const {
-    if (padding.isFlush()) {
-        return { state.size.width / 2., state.size.height / 2. };
-    } else {
-        return padding.getCenter(state.size.width, state.size.height);
-    }
+ScreenCoordinate Transform::getScreenCenterCoordinate() const {
+    return { state.size.width / 2., state.size.height / 2. };
 }
-
 
 #pragma mark - Zoom
 
@@ -364,7 +350,7 @@ void Transform::setMaxZoom(const double maxZoom) {
 #pragma mark - Bearing
 
 void Transform::rotateBy(const ScreenCoordinate& first, const ScreenCoordinate& second,  const AnimationOptions& animation) {
-    ScreenCoordinate center = getScreenCoordinate();
+    ScreenCoordinate center = getScreenCenterCoordinate();
     const ScreenCoordinate offset = first - center;
     const double distance = std::sqrt(std::pow(2, offset.x) + std::pow(2, offset.y));
 
