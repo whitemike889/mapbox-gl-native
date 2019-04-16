@@ -50,6 +50,9 @@ public:
     // Checks whether this layer can be rendered.
     bool needsRendering(float zoom) const;
 
+    // Checks whether this layer needs to be clipped to its bounding box.
+    bool needsClipping() const;
+
     virtual void render(PaintParameters&, RenderSource*) = 0;
 
     // Check wether the given geometry intersects

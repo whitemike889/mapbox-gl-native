@@ -1,6 +1,7 @@
 #include <mbgl/renderer/layers/render_fill_layer.hpp>
 #include <mbgl/renderer/buckets/fill_bucket.hpp>
 #include <mbgl/renderer/render_tile.hpp>
+#include <mbgl/renderer/render_source.hpp>
 #include <mbgl/renderer/paint_parameters.hpp>
 #include <mbgl/renderer/image_manager.hpp>
 #include <mbgl/programs/programs.hpp>
@@ -64,8 +65,11 @@ bool RenderFillLayer::hasCrossfade() const {
     return crossfade.t != 1;
 }
 
-void RenderFillLayer::render(PaintParameters& parameters, RenderSource*) {
+void RenderFillLayer::render(PaintParameters& parameters, RenderSource* renderSource) {
+    assert(renderSource);
+
     if (unevaluated.get<FillPattern>().isUndefined()) {
+        parameters.renderTileClippingMasks(renderSource->getRenderTileIDs());
         for (const RenderTile& tile : renderTiles) {
             auto bucket_ = tile.tile.getBucket<FillBucket>(*baseImpl);
             if (!bucket_) {
@@ -107,7 +111,7 @@ void RenderFillLayer::render(PaintParameters& parameters, RenderSource*) {
                     *parameters.renderPass,
                     drawMode,
                     depthMode,
-                    parameters.stencilModeForClipping(tile.clip),
+                    parameters.stencilModeForClipping(tile.id),
                     parameters.colorModeForRenderPass(),
                     gfx::CullFaceMode::disabled(),
                     indexBuffer,
@@ -148,6 +152,7 @@ void RenderFillLayer::render(PaintParameters& parameters, RenderSource*) {
         if (parameters.pass != RenderPass::Translucent) {
             return;
         }
+        parameters.renderTileClippingMasks(renderSource->getRenderTileIDs());
         const auto fillPatternValue = evaluated.get<FillPattern>().constantOr(Faded<std::basic_string<char>>{"", ""});
         for (const RenderTile& tile : renderTiles) {
             auto& geometryTile = static_cast<GeometryTile&>(tile.tile);
@@ -198,7 +203,7 @@ void RenderFillLayer::render(PaintParameters& parameters, RenderSource*) {
                     *parameters.renderPass,
                     drawMode,
                     depthMode,
-                    parameters.stencilModeForClipping(tile.clip),
+                    parameters.stencilModeForClipping(tile.id),
                     parameters.colorModeForRenderPass(),
                     gfx::CullFaceMode::disabled(),
                     indexBuffer,

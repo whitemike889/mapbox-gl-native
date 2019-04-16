@@ -71,4 +71,15 @@ bool RenderSource::isEnabled() const {
     return enabled;
 }
 
+std::vector<UnwrappedTileID> RenderSource::getRenderTileIDs() {
+    const auto renderTiles = getRenderTiles();
+    std::vector<UnwrappedTileID> tileIDs;
+    for (const RenderTile& renderTile : renderTiles) {
+        if (renderTile.needsClipping) {
+            tileIDs.emplace_back(renderTile.id);
+        }
+    }
+    return tileIDs;
+}
+
 } // namespace mbgl

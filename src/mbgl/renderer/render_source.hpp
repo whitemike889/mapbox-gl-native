@@ -60,6 +60,7 @@ public:
 
     // Returns a list of RenderTiles, sorted by tile id.
     virtual std::vector<std::reference_wrapper<RenderTile>> getRenderTiles() = 0;
+    std::vector<UnwrappedTileID> getRenderTileIDs();
 
     virtual std::unordered_map<std::string, std::vector<Feature>>
     queryRenderedFeatures(const ScreenLineString& geometry,

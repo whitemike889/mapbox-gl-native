@@ -1,6 +1,7 @@
 #include <mbgl/renderer/layers/render_line_layer.hpp>
 #include <mbgl/renderer/buckets/line_bucket.hpp>
 #include <mbgl/renderer/render_tile.hpp>
+#include <mbgl/renderer/render_source.hpp>
 #include <mbgl/renderer/paint_parameters.hpp>
 #include <mbgl/renderer/image_manager.hpp>
 #include <mbgl/programs/programs.hpp>
@@ -50,10 +51,13 @@ bool RenderLineLayer::hasCrossfade() const {
     return crossfade.t != 1;
 }
 
-void RenderLineLayer::render(PaintParameters& parameters, RenderSource*) {
+void RenderLineLayer::render(PaintParameters& parameters, RenderSource* renderSource) {
     if (parameters.pass == RenderPass::Opaque) {
         return;
     }
+
+    assert(renderSource);
+    parameters.renderTileClippingMasks(renderSource->getRenderTileIDs());
 
     for (const RenderTile& tile : renderTiles) {
         auto bucket_ = tile.tile.getBucket<LineBucket>(*baseImpl);
@@ -89,7 +93,7 @@ void RenderLineLayer::render(PaintParameters& parameters, RenderSource*) {
                 *parameters.renderPass,
                 gfx::Triangles(),
                 parameters.depthModeForSublayer(0, gfx::DepthMaskType::ReadOnly),
-                parameters.stencilModeForClipping(tile.clip),
+                parameters.stencilModeForClipping(tile.id),
                 parameters.colorModeForRenderPass(),
                 gfx::CullFaceMode::disabled(),
                 *bucket.indexBuffer,

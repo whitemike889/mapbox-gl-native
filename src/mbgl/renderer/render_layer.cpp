@@ -2,6 +2,7 @@
 #include <mbgl/renderer/paint_parameters.hpp>
 #include <mbgl/renderer/render_tile.hpp>
 #include <mbgl/style/types.hpp>
+#include <mbgl/style/layer.hpp>
 #include <mbgl/tile/tile.hpp>
 #include <mbgl/gfx/context.hpp>
 #include <mbgl/util/logging.hpp>
@@ -33,6 +34,10 @@ bool RenderLayer::needsRendering(float zoom) const {
            && baseImpl->maxZoom >= zoom;
 }
 
+bool RenderLayer::needsClipping() const {
+    return baseImpl->getTypeInfo()->clipping == style::LayerTypeInfo::Clipping::Required;
+}
+
 void RenderLayer::setRenderTiles(RenderTiles tiles, const TransformState&) {
     auto filterFn = [](auto& tile){ return !tile.tile.isRenderable() || tile.tile.holdForFade(); };
     renderTiles = filterRenderTiles(std::move(tiles), filterFn);
@@ -53,9 +58,8 @@ optional<Color> RenderLayer::getSolidBackground() const {
 RenderLayer::RenderTiles RenderLayer::filterRenderTiles(RenderTiles tiles, FilterFunctionPtr filterFn) const {
     assert(filterFn != nullptr);
     RenderTiles filtered;
-    // We only need clipping when we're drawing fill or line layers.
-    const bool needsClipping_ =
-            baseImpl->getTypeInfo()->clipping == LayerTypeInfo::Clipping::Required;
+
+    const bool clip = needsClipping();
 
     for (auto& tileRef : tiles) {
         auto& tile = tileRef.get();
@@ -65,7 +69,9 @@ RenderLayer::RenderTiles RenderLayer::filterRenderTiles(RenderTiles tiles, Filte
 
         if (Bucket* bucket = tile.tile.getBucket(*baseImpl)) {
             tile.used = true;
-            tile.needsClipping |= needsClipping_;
+            if (clip) {
+                tile.needsClipping = true;
+            }
             filtered.emplace_back(tile);
             if (tile.tile.isComplete()) {
                 updateBucketPaintProperties(bucket);
