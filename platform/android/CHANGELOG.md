@@ -4,6 +4,21 @@ Mapbox welcomes participation and contributions from everyone.  If you'd like to
 
 ## master
 
+## 7.4.0-beta.1 - April 18, 2019
+## Bugs
+ - Bump gestures library to v0.4.1 [#14435](https://github.com/mapbox/mapbox-gl-native/pull/14435)
+ - Update mapbox java sdk to v4.6.0 [#14424](https://github.com/mapbox/mapbox-gl-native/pull/14424)
+ - Program against NativeMap [#14412](https://github.com/mapbox/mapbox-gl-native/pull/14412)
+ - Order render items properly across several sources [#14408](https://github.com/mapbox/mapbox-gl-native/pull/14408)
+ - Ignore equal offline region's download state updates [#14399](https://github.com/mapbox/mapbox-gl-native/pull/14399)
+ - Activate the ConnectivityReceiver when starting the download [#14397](https://github.com/mapbox/mapbox-gl-native/pull/14397)
+
+### Features
+ - Port symbol-sort-key symbol layout property [#14386](https://github.com/mapbox/mapbox-gl-native/pull/14386)
+ - Allow snapshot generation without overlain view content [#14413](https://github.com/mapbox/mapbox-gl-native/pull/14413)
+ - Introduce AccountsManager to support SKU tokens in API requests [#14404](https://github.com/mapbox/mapbox-gl-native/pull/14404)
+ - Add MapEventFactory [#14309](https://github.com/mapbox/mapbox-gl-native/pull/14309)
+
 ## 7.3.2 - April 17, 2019
 ## Bugs
  - Unify has surface state handling, allow querying after map resume [#14426](https://github.com/mapbox/mapbox-gl-native/pull/14426)
