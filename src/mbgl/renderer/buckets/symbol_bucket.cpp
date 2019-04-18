@@ -187,24 +187,7 @@ void SymbolBucket::sortFeatures(const float angle) {
     // sorted order.
 
     // To avoid sorting the actual symbolInstance array we sort an array of indexes.
-    std::vector<size_t> symbolInstanceIndexes;
-    symbolInstanceIndexes.reserve(symbolInstances.size());
-    for (size_t i = 0; i < symbolInstances.size(); i++) {
-        symbolInstanceIndexes.push_back(i);
-    }
-
-    const float sin = std::sin(angle);
-    const float cos = std::cos(angle);
-
-    std::sort(symbolInstanceIndexes.begin(), symbolInstanceIndexes.end(), [sin, cos, this](size_t &aIndex, size_t &bIndex) {
-        const SymbolInstance& a = symbolInstances[aIndex];
-        const SymbolInstance& b = symbolInstances[bIndex];
-        const auto aRotated = static_cast<int32_t>(::lround(sin * a.anchor.point.x + cos * a.anchor.point.y));
-        const auto bRotated = static_cast<int32_t>(::lround(sin * b.anchor.point.x + cos * b.anchor.point.y));
-        return aRotated != bRotated ?
-            aRotated < bRotated :
-            a.dataFeatureIndex > b.dataFeatureIndex;
-    });
+    std::vector<size_t> symbolInstanceIndexes = getSortedSymbolIndexes(angle);
 
     text.triangles.clear();
     icon.triangles.clear();
@@ -236,6 +219,29 @@ void SymbolBucket::sortFeatures(const float angle) {
             addPlacedSymbol(icon.triangles, icon.placedSymbols[*symbolInstance.placedIconIndex]);
         }
     }
+}
+
+std::vector<size_t> SymbolBucket::getSortedSymbolIndexes(const float angle, const bool ascendingY) const {
+    std::vector<size_t> result;
+    result.reserve(symbolInstances.size());
+    for (size_t i = 0; i < symbolInstances.size(); ++i) {
+        result.push_back(i);
+    }
+
+    const float sin = std::sin(angle);
+    const float cos = std::cos(angle);
+
+    std::sort(result.begin(), result.end(), [sin, cos, ascendingY, this](size_t &aIndex, size_t &bIndex) {
+        const SymbolInstance& a = symbolInstances[aIndex];
+        const SymbolInstance& b = symbolInstances[bIndex];
+        const auto aRotated = ::lround(sin * a.anchor.point.x + cos * a.anchor.point.y);
+        const auto bRotated = ::lround(sin * b.anchor.point.x + cos * b.anchor.point.y);
+        if (aRotated < bRotated) return ascendingY; 
+        if (aRotated > bRotated) return !ascendingY;
+        return a.dataFeatureIndex > b.dataFeatureIndex;  // aRotated == bRotated
+    });
+
+    return result;
 }
 
 bool SymbolBucket::hasFormatSectionOverrides() const {

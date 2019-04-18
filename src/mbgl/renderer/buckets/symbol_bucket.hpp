@@ -65,6 +65,9 @@ public:
 
     void updateOpacity();
     void sortFeatures(const float angle);
+    // Returns vector of indexes of the `symbolInstances` container, in the order they would be placed
+    // if `symbolInstances` were sorted.
+    std::vector<size_t> getSortedSymbolIndexes(const float angle, const bool ascendingY = true) const;
 
     const style::SymbolLayoutProperties::PossiblyEvaluated layout;
     const bool sdfIcons;
